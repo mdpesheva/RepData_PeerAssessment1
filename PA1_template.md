@@ -4,12 +4,7 @@ output: html_document
 date: "2025-05-30"
 ---
 
-```{r setup, include=FALSE}
-library(knitr)
 
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 5,
-                      fig.keep = 'all',fig.path = 'figure/', dev = 'png')
-```
 
 # Introduction
 
@@ -19,7 +14,8 @@ This assignment will be evaluated via peer assessment so it is essential that yo
 
 # Loading and Pre-Processing Data
 
-```{r}
+
+``` r
 # Loading packages
 library(ggplot2)
 library(dplyr)
@@ -44,11 +40,23 @@ activity <- cbind(activity, day)
 summary(activity)
 ```
 
+```
+##      steps             date                           interval          day           
+##  Min.   :  0.00   Min.   :2012-10-01 00:00:00.00   Min.   :   0.0   Length:17568      
+##  1st Qu.:  0.00   1st Qu.:2012-10-16 00:00:00.00   1st Qu.: 588.8   Class :character  
+##  Median :  0.00   Median :2012-10-31 00:00:00.00   Median :1177.5   Mode  :character  
+##  Mean   : 37.38   Mean   :2012-10-30 23:32:27.53   Mean   :1177.5                     
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15 00:00:00.00   3rd Qu.:1766.2                     
+##  Max.   :806.00   Max.   :2012-11-30 00:00:00.00   Max.   :2355.0                     
+##  NA's   :2304
+```
+
 # Question 1 - What is the mean total number of steps taken per day?
 
 The question states any missing values in the data set can be ignored. From using the summary functions previously, it is already known that there are NA values within the steps variable, so these can be removed. After calculating the total number of steps per day, we plot a histogram in order to visualize the data
 
-```{r}
+
+``` r
 # Calculating total steps taken on a day ignoring NA
 steps_day<-activity %>%
   filter(!is.na(steps))%>%
@@ -63,25 +71,35 @@ g <- ggplot(steps_day, aes(x = total_steps)) +
   ggtitle("Total Number of Steps Taken on a Day")
 
 print(g)
-
 ```
+
+![plot of chunk unnamed-chunk-36](figure/unnamed-chunk-36-1.png)
 
 We are also asked to calculate the mean and median of total steps per day:
 
-```{r}
 
+``` r
 mean(steps_day$total_steps)
+```
 
+```
+## [1] 10766.19
+```
+
+``` r
 median(steps_day$total_steps)
+```
 
+```
+## [1] 10765
 ```
 
 # Question 2 - What is the average daily activity pattern?
 
 The second question asks of us to calculate the average daily steps per interval of 5 minutes and graph the results in a line plot. We first remove the NAs, then group and summarize the data by interval, calculating the average steps with the mean function.
 
-```{r}
 
+``` r
 # Calculating the average number of steps taken, averaged across all days by 5-min intervals.
 
 steps_interval<-activity %>%
@@ -97,34 +115,47 @@ g <- ggplot(steps_interval, mapping = aes(interval, average_steps)) +
   ggtitle("Average Number of Steps Per Interval")
 
 print(g)
-
 ```
+
+![plot of chunk unnamed-chunk-38](figure/unnamed-chunk-38-1.png)
 
 We are then asked to find the interval with highest average steps:
 
-```{r}
 
+``` r
 # Calculating the average number of steps taken, averaged across all days by 5-min intervals.
 
 steps_interval[which.max(steps_interval$average_steps), ]
+```
 
+```
+## # A tibble: 1 × 2
+##   interval average_steps
+##      <int>         <dbl>
+## 1      835          206.
 ```
 
 # Question 3- Imputing Missing Values
 
 In order to impute the missing data we firstly need to see the total missing values.
 
-```{r}
 
+``` r
 # Calculate and report the total number of missing values in the dataset :
 data.frame(steps=sum(is.na(activity$steps)), 
            interval=sum(is.na(activity$interval)), 
            date=sum(is.na(activity$date)))
 ```
 
+```
+##   steps interval date
+## 1  2304        0    0
+```
+
 The second step is to impute missing values with the mean number of steps per interval as calculated in question 2. The resulting dataset is then used to display a histogram of the total number of steps and the calculation of mean and median number of steps.
 
-```{r}
+
+``` r
 # Impute missing values with the mean number of steps per interval as calculated in question 2:
 steps_impute <- steps_interval$average_steps[match(activity$interval, steps_interval$interval)]
 activity_imputed <- transform(activity, 
@@ -145,40 +176,63 @@ g <- ggplot(steps_day_imputed, aes(x = total_steps)) +
   ggtitle("Total Number of Steps Taken on a Day")
 
 print(g)
-
 ```
+
+![plot of chunk unnamed-chunk-41](figure/unnamed-chunk-41-1.png)
 
 We calculate and report the mean and median total number of steps taken per day:
 
-```{r}
 
+``` r
 # Calculate and report the mean and median total number of steps taken per day.
 
 mean(steps_day_imputed$total_steps)
+```
 
+```
+## [1] 10766.19
+```
+
+``` r
 median(steps_day_imputed$total_steps)
+```
 
+```
+## [1] 10766.19
 ```
 
 Comparing the results before and after imputation gives the following graphs:
 
-```{r}
+
+``` r
 # Compare the results after imputation
 par(mfrow = c(1, 2))
 
 hist(steps_day$total_steps,xlab="Number of Steps Taken", col="blue",breaks=15, ylim=c(0, 20), main=NULL)
 hist(steps_day_imputed$total_steps, xlab="Number of Steps Taken", col="red",breaks=15, ylim=c(0, 20), main=NULL)
-mtext("Histograms of Total Number of Steps Taken per Day, Without/With Imputed Values",adj=0.95, font=2)
-
 ```
+
+![plot of chunk unnamed-chunk-43](figure/unnamed-chunk-43-1.png)
+
+``` r
+mtext("Histograms of Total Number of Steps Taken per Day, Without/With Imputed Values",adj=0.95, font=2)
+```
+
+![plot of chunk unnamed-chunk-43](figure/unnamed-chunk-43-2.png)
 
 Comparing the results before and after imputation gives the following numbers:
 
-```{r}
+
+``` r
 # Compare means and medians after imputation
 rbind(c(mean(steps_day$total_steps),median(steps_day$total_steps)),
       c(mean(steps_day_imputed$total_steps),median(steps_day_imputed$total_steps)))
+```
 
+```
+##          [,1]     [,2]
+## [1,] 10766.19 10765.00
+## [2,] 10766.19 10766.19
 ```
 
 We can see that there are no changes in the mean and slight difference in the median, however, the difference is not substantial. In the histogram we can see a change in the frequencies, which is as expected, given the type of imputation we performed
@@ -187,7 +241,8 @@ We can see that there are no changes in the mean and slight difference in the me
 
 We first create a column that will signal us if the dfay is a weekday or a weekend. We use the imputed data, resulting from question 3. This new column in then used to create groups together with the interval, in order to calculate average steps. Finally a panel plot is created with two graphs - one for weekdays and one for weekends. The x axis indicates each 5 minute interval, and the y axis shows the average number of steps taken.
 
-```{r}
+
+``` r
 # Perform summarization for weekends and weekdays per interval
 activity_daytype<-activity_imputed%>%
   mutate(day_type=ifelse(day=="Saturday" | day == "Sunday","weekend","weekday"))%>%
@@ -204,5 +259,7 @@ g <-  ggplot(activity_daytype, aes(x = interval , y = average_steps, color = day
 
 print(g) 
 ```
+
+![plot of chunk unnamed-chunk-45](figure/unnamed-chunk-45-1.png)
 
 We can see there is a difference between weekday and weekend average steps.
